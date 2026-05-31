@@ -53,6 +53,7 @@ export default function App() {
   const [dailyTimerSeconds, setDailyTimerSeconds] = useState(0);
   const [dailyTimerStartedAt, setDailyTimerStartedAt] = useState(null);
   const [dailyTimerDateKey, setDailyTimerDateKey] = useState(null);
+  const [storageLoaded, setStorageLoaded] = useState(false);
 
   const glow = useRef(new Animated.Value(0)).current;
 
@@ -108,7 +109,12 @@ export default function App() {
         setDailyState(fresh);
         await AsyncStorage.setItem(STORAGE_DAILY, JSON.stringify(fresh));
       }
-    } catch (e) {}
+    } catch (e) {
+      const today = getTodayKey();
+      setDailyState(createDailyState(today));
+    } finally {
+      setStorageLoaded(true);
+    }
   }
 
   function createDailyState(dateKey) {
@@ -222,7 +228,10 @@ export default function App() {
   }
 
   async function startDaily() {
-    if (!dailyState) return;
+    if (!dailyState) {
+      setInlineMessage('Still loading — please try again.');
+      return;
+    }
 
     setDigits(dailyState.digits);
     setExpression('');
@@ -518,12 +527,19 @@ export default function App() {
             </View>
 
             <View style={styles.menuCardStack}>
-              <TouchableOpacity style={styles.menuCard} onPress={startDaily}>
+              <TouchableOpacity
+                style={[styles.menuCard, !storageLoaded ? styles.menuCardDisabled : null]}
+                onPress={startDaily}
+              >
                 <View>
                   <Text style={styles.modeTitle}>Daily Commute</Text>
-                  <Text style={styles.modeAccentText}>
-                    {dailyState ? 'Daily #' + getDailyGameNumber(dailyState.dateKey) : 'Loading...'}
-                  </Text>
+                  {!storageLoaded ? (
+                    <ActivityIndicator size="small" color="#f5c521" style={styles.cardLoadingSpinner} />
+                  ) : (
+                    <Text style={styles.modeAccentText}>
+                      {'Daily #' + getDailyGameNumber(dailyState.dateKey)}
+                    </Text>
+                  )}
                   <Text style={styles.modeSubText}>{dailySubtitle}</Text>
                 </View>
                 <Text style={styles.cardArrow}>›</Text>
@@ -1365,6 +1381,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+
+  menuCardDisabled: {
+    opacity: 0.6,
+  },
+
+  cardLoadingSpinner: {
+    alignSelf: 'flex-start',
+    marginVertical: 4,
   },
 
   cardArrow: {
