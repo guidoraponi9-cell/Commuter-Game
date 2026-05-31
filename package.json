@@ -5,7 +5,8 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "postinstall": "node -e \"const fs=require('fs'),p=require('path');try{fs.rmSync(p.join(process.cwd(),'.expo'),{recursive:true,force:true})}catch(e){};fs.mkdirSync(p.join(process.cwd(),'.expo','web','cache','production','images'),{recursive:true})\""
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
