@@ -26,9 +26,6 @@
       },
       "edgeToEdgeEnabled": true
     },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    },
     "extra": {
       "eas": {
         "projectId": "8c80166e-3739-4a98-9dfc-40af922c7dea"
